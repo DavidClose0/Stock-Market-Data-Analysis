@@ -33,4 +33,35 @@ def download_data(ticker: str) -> dict:
     except Exception as e:
         print(f"Error retrieving {ticker} data: {e}")
         return {}
-    
+
+def extract_close_prices(data: dict) -> dict:
+    """
+    Extracts the minimum, maximum, average, and median close prices from historical stock data.
+    Args:
+        data (dict): The historical stock data.
+    Returns:
+        dict: A dictionary containing min, max, avg, and median close prices, plus ticker symbol.
+    """
+    # Extract numerical close prices and ticker symbol
+    close_prices = [float(rows["close"][1:]) for rows in data["data"]["tradesTable"]["rows"]]
+    ticker = data["data"]["symbol"]
+
+    min_price = min(close_prices)
+    max_price = max(close_prices)
+    avg_price = sum(close_prices) / len(close_prices)
+    close_prices.sort()
+    median_price = close_prices[len(close_prices) // 2]
+
+    return {
+        "ticker": ticker,
+        "min": min_price,
+        "max": max_price,
+        "avg": avg_price,
+        "median": median_price
+    }
+
+if __name__ == "__main__":
+    ticker = "AAPL"
+    data = download_data(ticker)
+    close_prices = extract_close_prices(data)
+    print(close_prices)
