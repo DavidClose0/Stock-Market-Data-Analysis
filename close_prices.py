@@ -1,5 +1,12 @@
+"""
+This module downloads historical stock data for stock tickers passed as command line arguments.
+The minimum, maximum, average, and median close prices are written to a JSON file.
+"""
+
 import requests
 from datetime import date
+import sys
+import json
 
 def download_data(ticker: str) -> dict:
     """
@@ -61,7 +68,20 @@ def extract_close_prices(data: dict) -> dict:
     }
 
 if __name__ == "__main__":
-    ticker = "AAPL"
-    data = download_data(ticker)
-    close_prices = extract_close_prices(data)
-    print(close_prices)
+    # Add close prices for each stock to a list
+    stocks = []
+    for ticker in sys.argv[1:]:
+        data = download_data(ticker)
+        if data:
+            stocks.append(extract_close_prices(data))
+
+    try :
+        f = open("stocks.json", "w")
+    except Exception as e:
+        print(f"Error opening stocks.json: {e}")
+        exit(1)
+        
+    with f:
+        json.dump(stocks, f, indent=4)
+
+    print("Stock data written to stocks.json")
